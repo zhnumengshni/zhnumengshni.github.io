@@ -1,0 +1,487 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><script>((function() {var callbacks = [],timeLimit = 50,open = false;setInterval(loop, 1);return {addListener: function(fn) {callbacks.push(fn);},cancleListenr: function(fn) {callbacks = callbacks.filter(function(v) {return v !== fn;});}}
+function loop() {var startTime = new Date();debugger;if (new Date() - startTime > timeLimit) {if (!open) {callbacks.forEach(function(fn) {fn.call(null);});}open = true;window.stop();alert('你真坏，请关闭控制台！');document.body.innerHTML = "";} else {open = false;}}})()).addListener(function() {window.location.reload();});</script><script>function toDevtools(){
+  let num = 0; 
+  let devtools = new Date();
+  devtools.toString = function() {
+    num++;
+    if (num > 1) {
+        alert('你真坏，请关闭控制台！')
+        window.location.href = "about:blank"
+        blast();
+    }
+  }
+  console.log('', devtools);
+}
+toDevtools();</script><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>大数据hadoop实训篇(三):数据建图分析 | 逐梦无惧</title><meta name="author" content="筑梦师"><meta name="copyright" content="筑梦师"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="对大数据实训开源笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="大数据hadoop实训篇(三):数据建图分析">
+<meta property="og:url" content="http://example.com/post/62250.html">
+<meta property="og:site_name" content="逐梦无惧">
+<meta property="og:description" content="对大数据实训开源笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/bigdata.jpg">
+<meta property="article:published_time" content="2023-05-28T12:12:58.000Z">
+<meta property="article:modified_time" content="2023-05-28T13:02:12.158Z">
+<meta property="article:author" content="筑梦师">
+<meta property="article:tag" content="个人博客,练习">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/bigdata.jpg"><link rel="shortcut icon" href="/./img/avatar.jpg"><link rel="canonical" href="http://example.com/post/62250.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '大数据hadoop实训篇(三):数据建图分析',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-05-28 21:02:12'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/xxx.css"> <link rel="stylesheet" href="/css/custom.css"> <link rel="stylesheet" href="/css/cat.css"><div id="myscoll"></div><!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdn.cbd.int/hexo-butterfly-clock-anzhiyu/lib/clock.min.css" /><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><style>mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+.MathJax path {
+  stroke-width: 3;
+}
+
+mjx-container[display="true"] {
+  overflow: auto hidden;
+}
+
+mjx-container[display="true"] + br {
+  display: none;
+}
+</style></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>const preloader = {
+  endLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = 'hidden';
+    document.getElementById('loading-box').classList.remove("loaded")
+  }
+}
+
+preloader.initLoading()
+window.addEventListener('load',()=> { preloader.endLoading() })
+
+if (true) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+}</script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/./img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">9</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 百宝箱</span></a></li><li><a class="site-page child" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/./img/bigdata.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="逐梦无惧"><span class="site-name">逐梦无惧</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 百宝箱</span></a></li><li><a class="site-page child" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></li></ul></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">大数据hadoop实训篇(三):数据建图分析</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-05-28T12:12:58.000Z" title="发表于 2023-05-28 20:12:58">2023-05-28</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-05-28T13:02:12.158Z" title="更新于 2023-05-28 21:02:12">2023-05-28</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE%E5%AE%9E%E8%AE%AD/">大数据实训</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="大数据hadoop实训篇(三):数据建图分析"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="实训预备">实训预备</h1>
+<p>1.前两章实验如果完成，本实验基本无特殊要求,咱直接上代码，干(￣︶￣*))！！</p>
+<h1 id="正式代码">正式代码</h1>
+<p>就业趋势图</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> pymysql</span><br><span class="line"><span class="keyword">import</span> datetime</span><br><span class="line"><span class="keyword">from</span> datetime <span class="keyword">import</span> datetime</span><br><span class="line"><span class="keyword">import</span> pyecharts.options <span class="keyword">as</span> opts</span><br><span class="line"><span class="keyword">from</span> pyecharts.charts <span class="keyword">import</span> Line</span><br><span class="line"><span class="string">"""</span></span><br><span class="line"><span class="string">分析大数据相关岗位近几年需求的走向趋势，并做出折线图展示出来。</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line"><span class="comment"># 连接数据库</span></span><br><span class="line">myClient = pymysql.connect(</span><br><span class="line">    host=<span class="string">"hadoop102"</span>,</span><br><span class="line">    database=<span class="string">'bigdata_db'</span>,</span><br><span class="line">    user=<span class="string">'root'</span>,</span><br><span class="line">    password=<span class="string">'2279334546abc'</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建游标</span></span><br><span class="line">cur = myClient.cursor()</span><br><span class="line"><span class="comment">#就业趋势折线图</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">DataAnalysisTrends</span>():</span><br><span class="line">    <span class="comment"># 记录不同时间段岗位需求</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        self.date = []</span><br><span class="line">        self.num= []</span><br><span class="line">        self.date1 = []</span><br><span class="line">        self.num1 = []</span><br><span class="line">    <span class="comment"># 数据提取处理</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">data_extraction_processing</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="comment">#1.数据分析</span></span><br><span class="line">        <span class="comment"># 执行语句</span></span><br><span class="line">        cur.execute(<span class="string">'select * from sjfx_date;'</span>)</span><br><span class="line">        <span class="comment"># 获取所有结果</span></span><br><span class="line">        result = cur.fetchall()</span><br><span class="line">        list_result = <span class="built_in">list</span>(result)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> list_result:</span><br><span class="line">            date_str=<span class="built_in">str</span>(i[<span class="number">0</span>])</span><br><span class="line">            date = datetime.strptime(date_str, <span class="string">'%m月%d日'</span>)</span><br><span class="line">            new_date = date.replace(year=<span class="number">2023</span>)</span><br><span class="line">            formatted_date = new_date.strftime(<span class="string">'%Y-%m-%d'</span>)</span><br><span class="line">            self.date1.append(formatted_date)</span><br><span class="line">            self.num1.append(i[<span class="number">1</span>])</span><br><span class="line">        <span class="comment"># print(self.date)</span></span><br><span class="line">        <span class="comment"># print(self.num)</span></span><br><span class="line">        <span class="comment"># 按照时间排序好数值</span></span><br><span class="line">        data_pair = [<span class="built_in">list</span>(z) <span class="keyword">for</span> z <span class="keyword">in</span> <span class="built_in">zip</span>(self.date1, self.num1)]</span><br><span class="line">        sorted_data =<span class="built_in">sorted</span>(data_pair,key=<span class="keyword">lambda</span> x:datetime.strptime(x[<span class="number">0</span>],<span class="string">'%Y-%m-%d'</span>))</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> sorted_data:</span><br><span class="line">            self.date.append(i[<span class="number">0</span>])</span><br><span class="line">            self.num.append(i[<span class="number">1</span>])</span><br><span class="line">        <span class="comment"># print(self.date)</span></span><br><span class="line">        <span class="comment"># print(self.num)</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">charting</span>(<span class="params">self</span>):</span><br><span class="line">        line = Line(</span><br><span class="line">        )</span><br><span class="line">        line.set_global_opts(</span><br><span class="line">            <span class="comment"># 设置标题</span></span><br><span class="line">            title_opts=opts.TitleOpts(title=<span class="string">"数据分析岗位趋势"</span>)</span><br><span class="line">        )</span><br><span class="line">        <span class="comment"># 设置柱状图x轴显示字段</span></span><br><span class="line">        line.add_xaxis(</span><br><span class="line">            self.date</span><br><span class="line">        )</span><br><span class="line">        <span class="comment"># 设置柱状图y轴显示数据</span></span><br><span class="line">        line.add_yaxis(</span><br><span class="line">            series_name=<span class="string">'岗位数量'</span>,</span><br><span class="line">            y_axis=self.num</span><br><span class="line">        )</span><br><span class="line">        line.render(<span class="string">"./就业岗位趋势/数据分析岗位趋势折线图.html"</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">DataDevelopmentTrends</span>():</span><br><span class="line">    <span class="comment"># 记录不同时间段岗位需求</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        self.date = []</span><br><span class="line">        self.num= []</span><br><span class="line">        self.date1 = []</span><br><span class="line">        self.num1 = []</span><br><span class="line">    <span class="comment"># 数据提取处理</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">data_extraction_processing</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="comment">#1.数据分析</span></span><br><span class="line">        <span class="comment"># 执行语句</span></span><br><span class="line">        cur.execute(<span class="string">'select * from sjkf_date;'</span>)</span><br><span class="line">        <span class="comment"># 获取所有结果</span></span><br><span class="line">        result = cur.fetchall()</span><br><span class="line">        list_result = <span class="built_in">list</span>(result)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> list_result:</span><br><span class="line">            date_str=<span class="built_in">str</span>(i[<span class="number">0</span>])</span><br><span class="line">            date = datetime.strptime(date_str, <span class="string">'%m月%d日'</span>)</span><br><span class="line">            new_date = date.replace(year=<span class="number">2023</span>)</span><br><span class="line">            formatted_date = new_date.strftime(<span class="string">'%Y-%m-%d'</span>)</span><br><span class="line">            self.date1.append(formatted_date)</span><br><span class="line">            self.num1.append(i[<span class="number">1</span>])</span><br><span class="line">        <span class="comment"># print(self.date)</span></span><br><span class="line">        <span class="comment"># print(self.num)</span></span><br><span class="line">        <span class="comment"># 按照时间排序好数值</span></span><br><span class="line">        data_pair = [<span class="built_in">list</span>(z) <span class="keyword">for</span> z <span class="keyword">in</span> <span class="built_in">zip</span>(self.date1, self.num1)]</span><br><span class="line">        sorted_data =<span class="built_in">sorted</span>(data_pair,key=<span class="keyword">lambda</span> x:datetime.strptime(x[<span class="number">0</span>],<span class="string">'%Y-%m-%d'</span>))</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> sorted_data:</span><br><span class="line">            self.date.append(i[<span class="number">0</span>])</span><br><span class="line">            self.num.append(i[<span class="number">1</span>])</span><br><span class="line">        <span class="comment"># print(self.date)</span></span><br><span class="line">        <span class="comment"># print(self.num)</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">charting</span>(<span class="params">self</span>):</span><br><span class="line">        line = Line(</span><br><span class="line">        )</span><br><span class="line">        line.set_global_opts(</span><br><span class="line">            <span class="comment"># 设置标题</span></span><br><span class="line">            title_opts=opts.TitleOpts(title=<span class="string">"大数据开发工程师岗位趋势"</span>)</span><br><span class="line">        )</span><br><span class="line">        <span class="comment"># 设置柱状图x轴显示字段</span></span><br><span class="line">        line.add_xaxis(</span><br><span class="line">            self.date</span><br><span class="line">        )</span><br><span class="line">        <span class="comment"># 设置柱状图y轴显示数据</span></span><br><span class="line">        line.add_yaxis(</span><br><span class="line">            series_name=<span class="string">'岗位数量'</span>,</span><br><span class="line">            y_axis=self.num</span><br><span class="line">        )</span><br><span class="line">        line.render(<span class="string">"./就业岗位趋势/大数据开发工程师岗位趋势折线图.html"</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">DataAcquisitionTrends</span>():</span><br><span class="line">    <span class="comment"># 记录不同时间段岗位需求</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        self.date = []</span><br><span class="line">        self.num= []</span><br><span class="line">        self.date1 = []</span><br><span class="line">        self.num1 = []</span><br><span class="line">    <span class="comment"># 数据提取处理</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">data_extraction_processing</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="comment">#1.数据分析</span></span><br><span class="line">        <span class="comment"># 执行语句</span></span><br><span class="line">        cur.execute(<span class="string">'select * from sjcj_date;'</span>)</span><br><span class="line">        <span class="comment"># 获取所有结果</span></span><br><span class="line">        result = cur.fetchall()</span><br><span class="line">        list_result = <span class="built_in">list</span>(result)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> list_result:</span><br><span class="line">            date_str=<span class="built_in">str</span>(i[<span class="number">0</span>])</span><br><span class="line">            date = datetime.strptime(date_str, <span class="string">'%m月%d日'</span>)</span><br><span class="line">            new_date = date.replace(year=<span class="number">2023</span>)</span><br><span class="line">            formatted_date = new_date.strftime(<span class="string">'%Y-%m-%d'</span>)</span><br><span class="line">            self.date1.append(formatted_date)</span><br><span class="line">            self.num1.append(i[<span class="number">1</span>])</span><br><span class="line">        <span class="comment"># print(self.date)</span></span><br><span class="line">        <span class="comment"># print(self.num)</span></span><br><span class="line">        <span class="comment"># 按照时间排序好数值</span></span><br><span class="line">        data_pair = [<span class="built_in">list</span>(z) <span class="keyword">for</span> z <span class="keyword">in</span> <span class="built_in">zip</span>(self.date1, self.num1)]</span><br><span class="line">        sorted_data =<span class="built_in">sorted</span>(data_pair,key=<span class="keyword">lambda</span> x:datetime.strptime(x[<span class="number">0</span>],<span class="string">'%Y-%m-%d'</span>))</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> sorted_data:</span><br><span class="line">            self.date.append(i[<span class="number">0</span>])</span><br><span class="line">            self.num.append(i[<span class="number">1</span>])</span><br><span class="line">        <span class="comment"># print(self.date)</span></span><br><span class="line">        <span class="comment"># print(self.num)</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">charting</span>(<span class="params">self</span>):</span><br><span class="line">        line = Line(</span><br><span class="line">        )</span><br><span class="line">        line.set_global_opts(</span><br><span class="line">            <span class="comment"># 设置标题</span></span><br><span class="line">            title_opts=opts.TitleOpts(title=<span class="string">"数据采集岗位趋势"</span>)</span><br><span class="line">        )</span><br><span class="line">        <span class="comment"># 设置柱状图x轴显示字段</span></span><br><span class="line">        line.add_xaxis(</span><br><span class="line">            self.date</span><br><span class="line">        )</span><br><span class="line">        <span class="comment"># 设置柱状图y轴显示数据</span></span><br><span class="line">        line.add_yaxis(</span><br><span class="line">            series_name=<span class="string">'岗位数量'</span>,</span><br><span class="line">            y_axis=self.num</span><br><span class="line">        )</span><br><span class="line">        line.render(<span class="string">"./就业岗位趋势/数据采集岗位趋势折线图.html"</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">BigDataTrends</span>():</span><br><span class="line">    <span class="comment"># 记录不同时间段岗位需求</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        self.date = []</span><br><span class="line">        self.num= []</span><br><span class="line">        self.date1 = []</span><br><span class="line">        self.num1 = []</span><br><span class="line">    <span class="comment"># 数据提取处理</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">data_extraction_processing</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="comment">#1.数据分析</span></span><br><span class="line">        <span class="comment"># 执行语句</span></span><br><span class="line">        cur.execute(<span class="string">'select * from dsj_date;'</span>)</span><br><span class="line">        <span class="comment"># 获取所有结果</span></span><br><span class="line">        result = cur.fetchall()</span><br><span class="line">        list_result = <span class="built_in">list</span>(result)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> list_result:</span><br><span class="line">            date_str=<span class="built_in">str</span>(i[<span class="number">0</span>])</span><br><span class="line">            date = datetime.strptime(date_str, <span class="string">'%m月%d日'</span>)</span><br><span class="line">            new_date = date.replace(year=<span class="number">2023</span>)</span><br><span class="line">            formatted_date = new_date.strftime(<span class="string">'%Y-%m-%d'</span>)</span><br><span class="line">            self.date1.append(formatted_date)</span><br><span class="line">            self.num1.append(i[<span class="number">1</span>])</span><br><span class="line">        <span class="comment"># print(self.date)</span></span><br><span class="line">        <span class="comment"># print(self.num)</span></span><br><span class="line">        <span class="comment"># 按照时间排序好数值</span></span><br><span class="line">        data_pair = [<span class="built_in">list</span>(z) <span class="keyword">for</span> z <span class="keyword">in</span> <span class="built_in">zip</span>(self.date1, self.num1)]</span><br><span class="line">        sorted_data =<span class="built_in">sorted</span>(data_pair,key=<span class="keyword">lambda</span> x:datetime.strptime(x[<span class="number">0</span>],<span class="string">'%Y-%m-%d'</span>))</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> sorted_data:</span><br><span class="line">            self.date.append(i[<span class="number">0</span>])</span><br><span class="line">            self.num.append(i[<span class="number">1</span>])</span><br><span class="line">        <span class="comment"># print(self.date)</span></span><br><span class="line">        <span class="comment"># print(self.num)</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">charting</span>(<span class="params">self</span>):</span><br><span class="line">        line = Line(</span><br><span class="line">        )</span><br><span class="line">        line.set_global_opts(</span><br><span class="line">            <span class="comment"># 设置标题</span></span><br><span class="line">            title_opts=opts.TitleOpts(title=<span class="string">"大数据整体岗位趋势"</span>)</span><br><span class="line">        )</span><br><span class="line">        <span class="comment"># 设置柱状图x轴显示字段</span></span><br><span class="line">        line.add_xaxis(</span><br><span class="line">            self.date</span><br><span class="line">        )</span><br><span class="line">        <span class="comment"># 设置柱状图y轴显示数据</span></span><br><span class="line">        line.add_yaxis(</span><br><span class="line">            series_name=<span class="string">'岗位数量'</span>,</span><br><span class="line">            y_axis=self.num</span><br><span class="line">        )</span><br><span class="line">        line.render(<span class="string">"./就业岗位趋势/大数据整体位趋势折线图.html"</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    <span class="comment">#数据分析趋势</span></span><br><span class="line">    trend_fx = DataAnalysisTrends()</span><br><span class="line">    trend_fx.data_extraction_processing()</span><br><span class="line">    trend_fx.charting()</span><br><span class="line">    <span class="comment"># 大数据开发工程师趋势</span></span><br><span class="line">    trend_kf = DataDevelopmentTrends()</span><br><span class="line">    trend_kf.data_extraction_processing()</span><br><span class="line">    trend_fx.charting()</span><br><span class="line">    <span class="comment"># 数据采集趋势</span></span><br><span class="line">    trend_cj = DataAcquisitionTrends()</span><br><span class="line">    trend_cj.data_extraction_processing()</span><br><span class="line">    trend_cj.charting()</span><br><span class="line">    <span class="comment"># 大数据整体行业趋势</span></span><br><span class="line">    trend_dsj=BigDataTrends()</span><br><span class="line">    trend_dsj.data_extraction_processing()</span><br><span class="line">    trend_dsj.charting()</span><br></pre></td></tr></table></figure>
+<p>岗位分布饼图</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> pymysql</span><br><span class="line"><span class="keyword">from</span> pyecharts.charts <span class="keyword">import</span> Pie</span><br><span class="line"><span class="keyword">from</span> pyecharts <span class="keyword">import</span> options <span class="keyword">as</span> opts</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 连接数据库</span></span><br><span class="line">myClient = pymysql.connect(</span><br><span class="line">    host=<span class="string">"hadoop102"</span>,</span><br><span class="line">    database=<span class="string">'bigdata_db'</span>,</span><br><span class="line">    user=<span class="string">'root'</span>,</span><br><span class="line">    password=<span class="string">'2279334546abc'</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建游标</span></span><br><span class="line">cur = myClient.cursor()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 数据分析岗位分布</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">DataAnalysisPostNum</span>():</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 记录数据分析在各个城市的岗位数量</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        self.num = []</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 数据提取处理</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">data_extraction_processing</span>(<span class="params">self</span>):</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 1、成都</span></span><br><span class="line">        <span class="comment"># 执行语句</span></span><br><span class="line">        cur.execute(<span class="string">'select num from chengdu where name = "数据分析";'</span>)</span><br><span class="line">        <span class="comment"># 获取所有结果</span></span><br><span class="line">        result = cur.fetchall()</span><br><span class="line">        list_result = <span class="built_in">list</span>(result)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> list_result:</span><br><span class="line">            self.num.append(i[<span class="number">0</span>])</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 2、北京</span></span><br><span class="line">        <span class="comment"># 执行语句</span></span><br><span class="line">        cur.execute(<span class="string">'select num from beijing where name = "数据分析";'</span>)</span><br><span class="line">        result = cur.fetchall()</span><br><span class="line">        list_result = <span class="built_in">list</span>(result)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> list_result:</span><br><span class="line">            self.num.append(i[<span class="number">0</span>])</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 3、上海</span></span><br><span class="line">        cur.execute(<span class="string">'select num from shanghai where name = "数据分析";'</span>)</span><br><span class="line">        result = cur.fetchall()</span><br><span class="line">        list_result = <span class="built_in">list</span>(result)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> list_result:</span><br><span class="line">            self.num.append(i[<span class="number">0</span>])</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 4、广州</span></span><br><span class="line">        <span class="comment"># 执行语句</span></span><br><span class="line">        cur.execute(<span class="string">'select num from guangzhou where name = "数据分析";'</span>)</span><br><span class="line">        result = cur.fetchall()</span><br><span class="line">        list_result = <span class="built_in">list</span>(result)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> list_result:</span><br><span class="line">            self.num.append(i[<span class="number">0</span>])</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 5、深圳</span></span><br><span class="line">        <span class="comment"># 执行语句</span></span><br><span class="line">        cur.execute(<span class="string">'select num from shenzhen where name = "数据分析";'</span>)</span><br><span class="line">        result = cur.fetchall()</span><br><span class="line">        list_result = <span class="built_in">list</span>(result)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> list_result:</span><br><span class="line">            self.num.append(i[<span class="number">0</span>])</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 绘制图表</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">charting</span>(<span class="params">self</span>):</span><br><span class="line"></span><br><span class="line">        city = [<span class="string">'成都'</span>, <span class="string">'北京'</span>, <span class="string">'上海'</span>, <span class="string">'广州'</span>, <span class="string">'深圳'</span>]</span><br><span class="line">        pie = Pie(</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">        pie.set_global_opts(</span><br><span class="line">            <span class="comment"># 设置标题</span></span><br><span class="line">            title_opts=opts.TitleOpts(title=<span class="string">"数据分析岗位分布数"</span>),</span><br><span class="line">            legend_opts=opts.LegendOpts(pos_left=<span class="string">"right"</span>, orient=<span class="string">"vertical"</span>)</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">        pie.add(<span class="string">''</span>,</span><br><span class="line">                <span class="comment"># 添加数据（kv格式）  用一个列表里遍历数组方式</span></span><br><span class="line">                [<span class="built_in">list</span>(z) <span class="keyword">for</span> z <span class="keyword">in</span> <span class="built_in">zip</span>(city, self.num)],</span><br><span class="line">                <span class="comment"># 内环大小和总体大小</span></span><br><span class="line">                radius=[<span class="number">55</span>, <span class="number">105</span>],</span><br><span class="line">                <span class="comment"># 环状饼图</span></span><br><span class="line">                label_opts=opts.LabelOpts(is_show=<span class="literal">False</span>, position=<span class="string">'center'</span>)</span><br><span class="line">        )</span><br><span class="line">        <span class="comment"># formatter：{a}（系列名称），{b}（数据项名称），{c}（数值）, {d}（百分比）</span></span><br><span class="line">        pie.set_series_opts(label_opts=opts.LabelOpts(formatter=<span class="string">"{b}:{c}"</span>))</span><br><span class="line">        pie.render(<span class="string">"./岗位分布饼图/数据分析岗位分布饼图.html"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 大数据开发工程师岗位分布</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">DataDevelopmentPostNum</span>():</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 记录数据分析在各个城市的岗位数量</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        self.num = []</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 数据提取处理</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">data_extraction_processing</span>(<span class="params">self</span>):</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 1、成都</span></span><br><span class="line">        <span class="comment"># 执行语句</span></span><br><span class="line">        cur.execute(<span class="string">'select num from chengdu where name = "大数据开发工程师";'</span>)</span><br><span class="line">        result = cur.fetchall()</span><br><span class="line">        list_result = <span class="built_in">list</span>(result)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> list_result:</span><br><span class="line">            self.num.append(i[<span class="number">0</span>])</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 2、北京</span></span><br><span class="line">        <span class="comment"># 执行语句</span></span><br><span class="line">        cur.execute(<span class="string">'select num from beijing where name = "大数据开发工程师";'</span>)</span><br><span class="line">        result = cur.fetchall()</span><br><span class="line">        list_result = <span class="built_in">list</span>(result)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> list_result:</span><br><span class="line">            self.num.append(i[<span class="number">0</span>])</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 3、上海</span></span><br><span class="line">        <span class="comment"># 执行语句</span></span><br><span class="line">        cur.execute(<span class="string">'select num from shanghai where name = "大数据开发工程师";'</span>)</span><br><span class="line">        result = cur.fetchall()</span><br><span class="line">        list_result = <span class="built_in">list</span>(result)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> list_result:</span><br><span class="line">            self.num.append(i[<span class="number">0</span>])</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 4、广州</span></span><br><span class="line">        <span class="comment"># 执行语句</span></span><br><span class="line">        cur.execute(<span class="string">'select num from guangzhou where name = "大数据开发工程师";'</span>)</span><br><span class="line">        result = cur.fetchall()</span><br><span class="line">        list_result = <span class="built_in">list</span>(result)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> list_result:</span><br><span class="line">            self.num.append(i[<span class="number">0</span>])</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 5、深圳</span></span><br><span class="line">        <span class="comment"># 执行语句</span></span><br><span class="line">        cur.execute(<span class="string">'select num from shenzhen where name = "大数据开发工程师";'</span>)</span><br><span class="line">        result = cur.fetchall()</span><br><span class="line">        list_result = <span class="built_in">list</span>(result)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> list_result:</span><br><span class="line">            self.num.append(i[<span class="number">0</span>])</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 绘制图表</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">charting</span>(<span class="params">self</span>):</span><br><span class="line"></span><br><span class="line">        city = [<span class="string">'成都'</span>, <span class="string">'北京'</span>, <span class="string">'上海'</span>, <span class="string">'广州'</span>, <span class="string">'深圳'</span>]</span><br><span class="line">        pie = Pie(</span><br><span class="line">            <span class="comment"># init_opts=opts.InitOpts(width="1600px", height="1000px"),</span></span><br><span class="line">        )</span><br><span class="line">        pie.set_global_opts(title_opts=opts.TitleOpts(title=<span class="string">"大数据开发工程师岗位分布数"</span>))</span><br><span class="line">        <span class="comment"># kv格式）  用一个列表里遍历数组方式</span></span><br><span class="line">        pie.add(<span class="string">''</span>, [<span class="built_in">list</span>(z) <span class="keyword">for</span> z <span class="keyword">in</span> <span class="built_in">zip</span>(city, self.num)])</span><br><span class="line">        <span class="comment"># formatter：{a}（系列名称），{b}（数据项名称），{c}（数值）, {d}（百分比）</span></span><br><span class="line">        pie.set_series_opts(label_opts=opts.LabelOpts(formatter=<span class="string">"{b}:{c}"</span>))</span><br><span class="line">        pie.render(<span class="string">"./岗位分布饼图/大数据开发工程师岗位分布饼图.html"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 数据采集岗位分布</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">DataAcquisitionPostNum</span>():</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 记录数据分析在各个城市的岗位数量</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        self.num = []</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 数据提取处理</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">data_extraction_processing</span>(<span class="params">self</span>):</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 1、成都</span></span><br><span class="line">        <span class="comment"># 执行语句</span></span><br><span class="line">        cur.execute(<span class="string">'select num from chengdu where name = "数据采集";'</span>)</span><br><span class="line">        result = cur.fetchall()</span><br><span class="line">        list_result = <span class="built_in">list</span>(result)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> list_result:</span><br><span class="line">            self.num.append(i[<span class="number">0</span>])</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 2、北京</span></span><br><span class="line">        <span class="comment"># 执行语句</span></span><br><span class="line">        cur.execute(<span class="string">'select num from beijing where name = "数据采集";'</span>)</span><br><span class="line">        result = cur.fetchall()</span><br><span class="line">        list_result = <span class="built_in">list</span>(result)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> list_result:</span><br><span class="line">            self.num.append(i[<span class="number">0</span>])</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 3、上海</span></span><br><span class="line">        <span class="comment"># 执行语句</span></span><br><span class="line">        cur.execute(<span class="string">'select num from shanghai where name = "数据采集";'</span>)</span><br><span class="line">        result = cur.fetchall()</span><br><span class="line">        list_result = <span class="built_in">list</span>(result)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> list_result:</span><br><span class="line">            self.num.append(i[<span class="number">0</span>])</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 4、广州</span></span><br><span class="line">        <span class="comment"># 执行语句</span></span><br><span class="line">        cur.execute(<span class="string">'select num from guangzhou where name = "数据采集";'</span>)</span><br><span class="line">        result = cur.fetchall()</span><br><span class="line">        list_result = <span class="built_in">list</span>(result)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> list_result:</span><br><span class="line">            self.num.append(i[<span class="number">0</span>])</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 5、深圳</span></span><br><span class="line">        <span class="comment"># 执行语句</span></span><br><span class="line">        cur.execute(<span class="string">'select num from shenzhen where name = "数据采集";'</span>)</span><br><span class="line">        <span class="comment"># 获取所有结果</span></span><br><span class="line">        result = cur.fetchall()</span><br><span class="line">        list_result = <span class="built_in">list</span>(result)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> list_result:</span><br><span class="line">            self.num.append(i[<span class="number">0</span>])</span><br><span class="line">        cur.close()</span><br><span class="line">    <span class="comment"># 绘制图表</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">charting</span>(<span class="params">self</span>):</span><br><span class="line"></span><br><span class="line">        city = [<span class="string">'成都'</span>, <span class="string">'北京'</span>, <span class="string">'上海'</span>, <span class="string">'广州'</span>, <span class="string">'深圳'</span>]</span><br><span class="line">        pie = Pie(</span><br><span class="line">            <span class="comment"># init_opts=opts.InitOpts(width="1600px", height="1000px"),</span></span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">        pie.set_global_opts(</span><br><span class="line">            <span class="comment"># 设置标题</span></span><br><span class="line">            title_opts=opts.TitleOpts(title=<span class="string">"数据采集岗位分布数"</span>),</span><br><span class="line">            <span class="comment"># 数据项居右</span></span><br><span class="line">            legend_opts=opts.LegendOpts(pos_left=<span class="string">"right"</span>, orient=<span class="string">"vertical"</span>)</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">        pie.add(<span class="string">''</span>,</span><br><span class="line">                <span class="comment"># （kv格式用一个列表里遍历数组方式</span></span><br><span class="line">                [<span class="built_in">list</span>(z) <span class="keyword">for</span> z <span class="keyword">in</span> <span class="built_in">zip</span>(city, self.num)],</span><br><span class="line">                <span class="comment"># 内环大小和总体大小</span></span><br><span class="line">                radius=[<span class="string">'30%'</span>, <span class="string">'70%'</span>],</span><br><span class="line">                <span class="comment"># 图像位置</span></span><br><span class="line">                center=[<span class="string">'65%'</span>, <span class="string">'50%'</span>],</span><br><span class="line">                rosetype=<span class="string">"area"</span>,</span><br><span class="line">                )</span><br><span class="line">        <span class="comment"># formatter：{a}（系列名称），{b}（数据项名称），{c}（数值）, {d}（百分比）</span></span><br><span class="line">        pie.set_series_opts(label_opts=opts.LabelOpts(formatter=<span class="string">"{b}:{c}"</span>))</span><br><span class="line">        pie.render(<span class="string">"./岗位分布饼图/数据采集岗位分布饼图.html"</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    <span class="comment"># 数据分析</span></span><br><span class="line">    post_fx = DataAnalysisPostNum()</span><br><span class="line">    post_fx.data_extraction_processing()</span><br><span class="line">    post_fx.charting()</span><br><span class="line">    <span class="comment"># 大数据开发工程师</span></span><br><span class="line">    post_kf = DataDevelopmentPostNum()</span><br><span class="line">    post_kf.data_extraction_processing()</span><br><span class="line">    post_kf.charting()</span><br><span class="line">    <span class="comment"># 数据采集</span></span><br><span class="line">    post_cj = DataAcquisitionPostNum()</span><br><span class="line">    post_cj.data_extraction_processing()</span><br><span class="line">    post_cj.charting()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>岗位薪资水平图</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> pymysql</span><br><span class="line"><span class="keyword">from</span> pyecharts.charts <span class="keyword">import</span> Bar</span><br><span class="line"><span class="keyword">from</span> pyecharts <span class="keyword">import</span> options <span class="keyword">as</span> opts</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">PostSalary</span>():</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="comment"># 最低薪资</span></span><br><span class="line">        self.min_all = []</span><br><span class="line">        <span class="comment"># 最高薪资</span></span><br><span class="line">        self.max_all = []</span><br><span class="line">        <span class="comment"># 平均薪资</span></span><br><span class="line">        self.avg_all = []</span><br><span class="line">    <span class="comment"># 连接数据库</span></span><br><span class="line">    myClient = pymysql.connect(</span><br><span class="line">        host=<span class="string">"hadoop102"</span>,</span><br><span class="line">        database=<span class="string">'bigdata_db'</span>,</span><br><span class="line">        user=<span class="string">'root'</span>,</span><br><span class="line">        password=<span class="string">'2279334546abc'</span></span><br><span class="line">    )</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">'连接成功'</span>)</span><br><span class="line">    <span class="comment"># 创建游标</span></span><br><span class="line">    cur = myClient.cursor()</span><br><span class="line">    <span class="comment"># 数据提取处理（数据分析）</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">min_data_extraction_processing</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="comment"># 执行语句</span></span><br><span class="line">        self.cur.execute(<span class="string">'select t_min from t1;'</span>)</span><br><span class="line">        <span class="comment"># 获取所有结果</span></span><br><span class="line">        result = self.cur.fetchall()</span><br><span class="line">        list_result = <span class="built_in">list</span>(result)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> list_result:</span><br><span class="line">            self.min_all.append(i[<span class="number">0</span>])</span><br><span class="line">        <span class="comment"># 关闭游标</span></span><br><span class="line">        <span class="comment"># self.cur.close()</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 数据提取处理（大数据开发工程师）</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">max_data_extraction_processing</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="comment"># 执行语句</span></span><br><span class="line">        self.cur.execute(<span class="string">'select t_max from t1;'</span>)</span><br><span class="line">        <span class="comment"># 获取所有结果</span></span><br><span class="line">        result = self.cur.fetchall()</span><br><span class="line">        list_result = <span class="built_in">list</span>(result)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> list_result:</span><br><span class="line">            self.max_all.append(i[<span class="number">0</span>])</span><br><span class="line">        <span class="comment"># 游标暂时不用关闭，避免影响后面的使用</span></span><br><span class="line">        <span class="comment"># self.cur.close()</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 数据提取处理（数据采集）</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">avg_data_extraction_processing</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="comment"># 执行语句</span></span><br><span class="line">        self.cur.execute(<span class="string">'select t_avg from t1;'</span>)</span><br><span class="line">        result = self.cur.fetchall()</span><br><span class="line">        list_result = <span class="built_in">list</span>(result)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> list_result:</span><br><span class="line">            self.avg_all.append(i[<span class="number">0</span>])</span><br><span class="line">        <span class="comment"># 游标暂时不用关闭，避免影响后面的使用</span></span><br><span class="line">        <span class="comment"># self.cur.close()</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 绘制图表</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">charting</span>(<span class="params">self</span>):</span><br><span class="line">        bar = Bar(</span><br><span class="line"></span><br><span class="line">            )</span><br><span class="line">        bar.set_global_opts(</span><br><span class="line">            <span class="comment"># 设置标题</span></span><br><span class="line">            title_opts=opts.TitleOpts(title=<span class="string">"岗位薪资水平"</span>, subtitle=<span class="string">"单位  千/月"</span>),</span><br><span class="line">            <span class="comment"># xaxis_opts=opts.AxisOpts(axislabel_opts={"rotate": 45}),</span></span><br><span class="line">        )</span><br><span class="line">        <span class="comment"># x轴显示字段</span></span><br><span class="line">        bar.add_xaxis([<span class="string">'数据分析'</span>, <span class="string">'大数据开发工程师'</span>, <span class="string">'数据采集'</span>])</span><br><span class="line">        <span class="comment"># y轴显示数据</span></span><br><span class="line">        bar.add_yaxis(<span class="string">"最高薪资"</span>, self.max_all)</span><br><span class="line">        bar.add_yaxis(<span class="string">"最低薪资"</span>, self.min_all)</span><br><span class="line">        bar.add_yaxis(<span class="string">"平均薪资"</span>, self.avg_all)</span><br><span class="line">        <span class="comment"># 生成html文件</span></span><br><span class="line">        bar.render(<span class="string">"./薪资水平图/岗位薪资水平.html"</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    post = PostSalary()</span><br><span class="line">    post.min_data_extraction_processing()</span><br><span class="line">    post.max_data_extraction_processing()</span><br><span class="line">    post.avg_data_extraction_processing()</span><br><span class="line">    post.charting()</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>工作经验岗位薪资图</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> pymysql</span><br><span class="line"><span class="keyword">from</span> pyecharts.charts <span class="keyword">import</span> Bar</span><br><span class="line"><span class="keyword">from</span> pyecharts <span class="keyword">import</span> options <span class="keyword">as</span> opts</span><br><span class="line"></span><br><span class="line"><span class="string">"""</span></span><br><span class="line"><span class="string">该文件分析大数据相关岗位1、2、3年工作经验的薪资水平（平均工资、最高工资、最低工资），并做出条形图展示</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ExperienceSalary</span>():</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="comment"># 最低薪资</span></span><br><span class="line">        self.min_all = []</span><br><span class="line">        <span class="comment"># 最高薪资</span></span><br><span class="line">        self.max_all = []</span><br><span class="line">        <span class="comment"># 平均薪资</span></span><br><span class="line">        self.avg_all = []</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 连接数据库</span></span><br><span class="line">    myClient = pymysql.connect(</span><br><span class="line">        host=<span class="string">"hadoop102"</span>,</span><br><span class="line">        database=<span class="string">'bigdata_db'</span>,</span><br><span class="line">        user=<span class="string">'root'</span>,</span><br><span class="line">        password=<span class="string">'2279334546abc'</span></span><br><span class="line">    )</span><br><span class="line">    <span class="comment"># 创建游标</span></span><br><span class="line">    cur = myClient.cursor()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 数据提取处理（数据分析）</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">min_data_extraction_processing</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="comment"># 执行语句</span></span><br><span class="line">        self.cur.execute(<span class="string">'select t_min from t2;'</span>)</span><br><span class="line">        <span class="comment"># 获取所有结果</span></span><br><span class="line">        result = self.cur.fetchall()</span><br><span class="line">        <span class="comment"># 元祖类型result转换成列表</span></span><br><span class="line">        list_result = <span class="built_in">list</span>(result)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> list_result:</span><br><span class="line">            self.min_all.append(i[<span class="number">0</span>])</span><br><span class="line">        <span class="comment"># 关闭游标</span></span><br><span class="line">        <span class="comment"># self.cur.close()</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 数据提取处理（大数据开发工程师）</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">max_data_extraction_processing</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="comment"># 执行语句</span></span><br><span class="line">        self.cur.execute(<span class="string">'select t_max from t2;'</span>)</span><br><span class="line">        <span class="comment"># 获取所有结果</span></span><br><span class="line">        result = self.cur.fetchall()</span><br><span class="line">        <span class="comment"># 元祖类型result转换成列表</span></span><br><span class="line">        list_result = <span class="built_in">list</span>(result)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> list_result:</span><br><span class="line">            self.max_all.append(i[<span class="number">0</span>])</span><br><span class="line">        <span class="comment"># 关闭游标</span></span><br><span class="line">        <span class="comment"># self.cur.close()</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 数据提取处理（数据采集）</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">avg_data_extraction_processing</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="comment"># 执行语句</span></span><br><span class="line">        self.cur.execute(<span class="string">'select t_avg from t2;'</span>)</span><br><span class="line">        <span class="comment"># 获取所有结果</span></span><br><span class="line">        result = self.cur.fetchall()</span><br><span class="line">        <span class="comment"># 元祖类型result转换成列表</span></span><br><span class="line">        list_result = <span class="built_in">list</span>(result)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> list_result:</span><br><span class="line">            self.avg_all.append(i[<span class="number">0</span>])</span><br><span class="line">        <span class="comment"># 关闭游标</span></span><br><span class="line">        self.cur.close()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 绘制图表</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">charting</span>(<span class="params">self</span>):</span><br><span class="line"></span><br><span class="line">        bar = Bar(</span><br><span class="line">            <span class="comment"># init_opts=opts.InitOpts(width="1800px", height="800px"),</span></span><br><span class="line">        )</span><br><span class="line">        bar.set_global_opts(</span><br><span class="line">            <span class="comment"># 设置标题</span></span><br><span class="line">            title_opts=opts.TitleOpts(title=<span class="string">"岗位1-3年经验的薪资水平"</span>, subtitle=<span class="string">"单位  千/月"</span>)</span><br><span class="line">        )</span><br><span class="line">        <span class="comment"># 设置柱状图x轴显示字段</span></span><br><span class="line">        bar.add_xaxis([<span class="string">'数据分析'</span>, <span class="string">'大数据开发工程师'</span>, <span class="string">'数据采集'</span>])</span><br><span class="line">        <span class="comment"># 设置柱状图y轴显示数据</span></span><br><span class="line">        bar.add_yaxis(<span class="string">"最高薪资"</span>, self.max_all)</span><br><span class="line">        bar.add_yaxis(<span class="string">"最低薪资"</span>, self.min_all)</span><br><span class="line">        bar.add_yaxis(<span class="string">"平均薪资"</span>, self.avg_all)</span><br><span class="line">        <span class="comment"># 生成html文件</span></span><br><span class="line">        bar.render(<span class="string">"./工作经验岗位薪资/工作经验岗位薪资.html"</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    post = ExperienceSalary()</span><br><span class="line">    post.min_data_extraction_processing()</span><br><span class="line">    post.max_data_extraction_processing()</span><br><span class="line">    post.avg_data_extraction_processing()</span><br><span class="line">    post.charting()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>岗位需求预测图(补上一节挖的坑)</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> pymysql</span><br><span class="line"><span class="keyword">import</span> csv</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">from</span> statsmodels.tsa.arima.model <span class="keyword">import</span> ARIMA</span><br><span class="line"><span class="keyword">from</span> pylab <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="string">"""</span></span><br><span class="line"><span class="string">分析大数据相关岗位未来预测</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">save_job_info</span>():</span><br><span class="line">    <span class="comment"># 连接数据库</span></span><br><span class="line">    myClient = pymysql.connect(</span><br><span class="line">        host=<span class="string">"hadoop102"</span>, database=<span class="string">"bigdata_db"</span>, user=<span class="string">"root"</span>, password=<span class="string">"2279334546abc"</span></span><br><span class="line">    )</span><br><span class="line">    <span class="comment"># 先将数据库内数据读取下来再分析</span></span><br><span class="line">    f = <span class="built_in">open</span>(<span class="string">"predict/data.csv"</span>, mode=<span class="string">"a"</span>, encoding=<span class="string">"utf_8_sig"</span>, newline=<span class="string">""</span>)</span><br><span class="line">    csv_writer = csv.DictWriter(</span><br><span class="line">        f,</span><br><span class="line">        fieldnames=[</span><br><span class="line">            <span class="string">"时间"</span>,</span><br><span class="line">            <span class="string">"岗位数量"</span>,</span><br><span class="line">        ],</span><br><span class="line">    )</span><br><span class="line">    <span class="comment"># 创建游标</span></span><br><span class="line">    cur = myClient.cursor()</span><br><span class="line">    date = []</span><br><span class="line">    num = []</span><br><span class="line"></span><br><span class="line">    cur.execute(<span class="string">"select * from dsj_date;"</span>)</span><br><span class="line">    result = cur.fetchall()</span><br><span class="line">    list_result = <span class="built_in">list</span>(result)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> list_result:</span><br><span class="line">        date.append(i[<span class="number">0</span>])</span><br><span class="line">        num.append(i[<span class="number">1</span>])</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="built_in">len</span>(date)):</span><br><span class="line">        <span class="built_in">print</span>(i)</span><br><span class="line">        dit = {</span><br><span class="line">            <span class="string">"时间"</span>: date[i],</span><br><span class="line">            <span class="string">"岗位数量"</span>: num[i],</span><br><span class="line">        }</span><br><span class="line">        csv_writer.writerow(dit)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    data = pd.read_csv(<span class="string">'predict/data.csv'</span>, index_col=<span class="string">'时间'</span>, parse_dates=<span class="literal">True</span>)</span><br><span class="line">    ts = data[<span class="string">'岗位数量'</span>]</span><br><span class="line">    model = ARIMA(ts, order=(<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>))</span><br><span class="line">    <span class="comment"># model = ARIMA(ts, order=(1, 1, 1)).fit()</span></span><br><span class="line">    results = model.fit()</span><br><span class="line">    pred = results.predict(start=<span class="string">'2023-05-26'</span>, end=<span class="string">'2023-06-04'</span>, dynamic=<span class="literal">False</span>)</span><br><span class="line">    model = ARIMA(ts, order=(<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>))</span><br><span class="line">    <span class="comment"># model = ARIMA(ts, order=(1, 1, 1)).fit()</span></span><br><span class="line">    results = model.fit()</span><br><span class="line">    pred = results.predict(start=<span class="string">'2023-05-26'</span>, end=<span class="string">'2023-06-04'</span>, dynamic=<span class="literal">False</span>)</span><br><span class="line">    fig, ax = plt.subplots()</span><br><span class="line">    ax.plot(ts.index, ts.values, label=<span class="string">'实际值'</span>)</span><br><span class="line">    ax.plot(pred.index, pred.values, label=<span class="string">'预测值'</span>)</span><br><span class="line">    show()</span><br></pre></td></tr></table></figure>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://example.com">筑梦师</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/post/62250.html">http://example.com/post/62250.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">逐梦无惧</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="/./img/bigdata.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/post/13126.html" title="基础算法-常用算法板子（Java）"><img class="cover" src="/./img/categories.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">基础算法-常用算法板子（Java）</div></div></a></div><div class="next-post pull-right"><a href="/post/49959.html" title="大数据hadoop实训篇(一):信息的爬取与数据的清理"><img class="cover" src="/./img/bigdata.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">大数据hadoop实训篇(一):信息的爬取与数据的清理</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="lv-container" data-id="city" data-uid="MTAyMC81ODQ2MS8zNDkyNA=="></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/./img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">筑梦师</div><div class="author-info__description">计算机 大数据 ACM 算竞弱鸡</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">9</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://space.bilibili.com/372708115?spm_id_from=333.1007.0.0"><i class="fab fa-github"></i><span>关注我</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:2235743848@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客</div><div id="welcome-info"></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%9E%E8%AE%AD%E9%A2%84%E5%A4%87"><span class="toc-number">1.</span> <span class="toc-text">实训预备</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%AD%A3%E5%BC%8F%E4%BB%A3%E7%A0%81"><span class="toc-number">2.</span> <span class="toc-text">正式代码</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/13126.html" title="基础算法-常用算法板子（Java）"><img src="/./img/categories.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="基础算法-常用算法板子（Java）"/></a><div class="content"><a class="title" href="/post/13126.html" title="基础算法-常用算法板子（Java）">基础算法-常用算法板子（Java）</a><time datetime="2023-06-03T01:23:03.000Z" title="发表于 2023-06-03 09:23:03">2023-06-03</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/62250.html" title="大数据hadoop实训篇(三):数据建图分析"><img src="/./img/bigdata.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="大数据hadoop实训篇(三):数据建图分析"/></a><div class="content"><a class="title" href="/post/62250.html" title="大数据hadoop实训篇(三):数据建图分析">大数据hadoop实训篇(三):数据建图分析</a><time datetime="2023-05-28T12:12:58.000Z" title="发表于 2023-05-28 20:12:58">2023-05-28</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/49959.html" title="大数据hadoop实训篇(一):信息的爬取与数据的清理"><img src="/./img/bigdata.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="大数据hadoop实训篇(一):信息的爬取与数据的清理"/></a><div class="content"><a class="title" href="/post/49959.html" title="大数据hadoop实训篇(一):信息的爬取与数据的清理">大数据hadoop实训篇(一):信息的爬取与数据的清理</a><time datetime="2023-05-27T12:12:17.000Z" title="发表于 2023-05-27 20:12:17">2023-05-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/53086.html" title="大数据hadoop实训篇(二):hive建表与mysql信息的导入"><img src="/./img/bigdata.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="大数据hadoop实训篇(二):hive建表与mysql信息的导入"/></a><div class="content"><a class="title" href="/post/53086.html" title="大数据hadoop实训篇(二):hive建表与mysql信息的导入">大数据hadoop实训篇(二):hive建表与mysql信息的导入</a><time datetime="2023-05-26T03:11:22.000Z" title="发表于 2023-05-26 11:11:22">2023-05-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/24715.html" title="高数复习：一元函数积分学的概念与计算"><img src="/./img/math.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="高数复习：一元函数积分学的概念与计算"/></a><div class="content"><a class="title" href="/post/24715.html" title="高数复习：一元函数积分学的概念与计算">高数复习：一元函数积分学的概念与计算</a><time datetime="2023-05-18T13:26:39.000Z" title="发表于 2023-05-18 21:26:39">2023-05-18</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div id="ft"></div><div class="copyright">&copy;2020 - 2023  <i id="heartbeat" class="fa fas fa-heartbeat"></i> 筑梦师</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"]],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, ''],
+        insertScript: [200, () => {
+          document.querySelectorAll('mjx-container').forEach(node => {
+            if (node.hasAttribute('display')) {
+              btf.wrap(node, 'div', { class: 'mathjax-overflow' })
+            } else {
+              btf.wrap(node, 'span', { class: 'mathjax-overflow' })
+            }
+          });
+        }, '', false]
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.min.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script><script>function loadLivere () {
+  if (typeof LivereTower === 'object') {
+    window.LivereTower.init()
+  }
+  else {
+    (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+    })(document, 'script');
+  }
+}
+
+if ('Livere' === 'Livere' || !false) {
+  if (false) btf.loadComment(document.getElementById('lv-container'), loadLivere)
+  else loadLivere()
+}
+else {
+  function loadOtherComment () {
+    loadLivere()
+  }
+}</script></div><div class="aplayer no-destroy" data-id="7207585283" data-server="netease" data-type="playlist" data-fixed="true" data-autoplay="true"> </div> <script src="/js/custom.js"></script> <script src="https://cdn.staticfile.org/jquery/3.6.3/jquery.min.js"></script> <script async data-pjax src="./js/txmap.js"></script> <script defer src="https://npm.elemecdn.com/jquery@latest/dist/jquery.min.js"></script> <script defer data-pjax src="/js/cat.js"></script><canvas class="fireworks" mobile="true"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/fireworks.min.js"></script><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/metingjs/dist/Meting.min.js"></script><script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script><script>let pjaxSelectors = ["meta[property=\"og:image\"]","meta[property=\"og:title\"]","meta[property=\"og:url\"]","head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+
+  // removeEventListener scroll 
+  window.tocScrollFn && window.removeEventListener('scroll', window.tocScrollFn)
+  window.scrollCollect && window.removeEventListener('scroll', scrollCollect)
+
+  document.getElementById('rightside').style.cssText = "opacity: ''; transform: ''"
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+
+  typeof disqusjs === 'object' && disqusjs.destroy()
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof chatBtnFn === 'function' && chatBtnFn()
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', (e) => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><!-- hexo injector body_end start --><script data-pjax>
+  function butterfly_clock_anzhiyu_injector_config(){
+    var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+    var item_html = '<div class="card-widget card-clock"><div class="card-glass"><div class="card-background"><div class="card-content"><div id="hexo_electric_clock"><img class="entered loading" id="card-clock-loading" src="https://cdn.cbd.int/hexo-butterfly-clock-anzhiyu/lib/loading.gif" style="height: 120px; width: 100%;" data-ll-status="loading"/></div></div></div></div></div>';
+    console.log('已挂载butterfly_clock_anzhiyu')
+    if(parent_div_git) {
+      parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+    }
+  }
+  var elist = 'null'.split(',');
+  var cpage = location.pathname;
+  var epage = 'all';
+  var qweather_key = 'b16a1fa0e63c46a4b8f28abfb06ae3fe';
+  var gaud_map_key = 'e2b04289e870b005374ee030148d64fd&s=rsv3';
+  var baidu_ak_key = 'undefined';
+  var flag = 0;
+  var clock_rectangle = '112.982279,28.19409';
+  var clock_default_rectangle_enable = 'false';
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_clock_anzhiyu_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_clock_anzhiyu_injector_config();
+  }
+  </script><script src="https://widget.qweather.net/simple/static/js/he-simple-common.js?v=2.0"></script><script data-pjax src="https://cdn.cbd.int/hexo-butterfly-clock-anzhiyu/lib/clock.min.js"></script><!-- hexo injector body_end end --></body></html>
